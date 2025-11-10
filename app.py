@@ -101,7 +101,7 @@ def init_session_state():
                 st.session_state.opex_cash_in = data.get('opex_cash_in', [])
                 st.session_state.opex_cash_out = data.get('opex_cash_out', [])
                 st.session_state.project_years = int(data.get('project_years', 5))  # Ensure integer
-                st.session_state.discount_rate = float(data.get('discount_rate', 12.0))
+                st.session_state.discount_rate = float(data.get('discount_rate', 10.7))
                 st.session_state.default_data_loaded = data.get('default_data_loaded', True)
                 st.session_state.last_save = datetime.now()
                 loaded = True
@@ -110,49 +110,48 @@ def init_session_state():
 
         # If no saved data found, initialize with defaults
         if not loaded:
-            st.session_state.capex_items = []
-            st.session_state.opex_cash_in = []
-            st.session_state.opex_cash_out = []
-            st.session_state.project_years = 5
-            st.session_state.discount_rate = 12.0
-            st.session_state.last_save = datetime.now()
-            st.session_state.default_data_loaded = False
-
-        # Growth rates - UI setting only, NOT saved with data
-        if 'opex_in_growth' not in st.session_state:
-            st.session_state.opex_in_growth = 0.0
-        if 'opex_out_growth' not in st.session_state:
-            st.session_state.opex_out_growth = 0.0
+            # Growth rates - UI setting only, NOT saved with data
+            if 'opex_in_growth' not in st.session_state:
+                st.session_state.opex_in_growth = 0.0
+            if 'opex_out_growth' not in st.session_state:
+                st.session_state.opex_out_growth = 0.0
 
             # Add default data only on first load
             st.session_state.capex_items = [
                 {"id": "79e1c473-4e21-4ac3-af5f-99b6e0cbfc73", "name": "Synology NAS Server", "volume": 1.0, "unit": "unit", "price": 10599000.0},
                 {"id": "bf7935f4-6824-471a-a7d0-d1c0b72ea194", "name": "Uninterruptible Power Supply (UPS)", "volume": 1.0, "unit": "unit", "price": 3529000.0},
                 {"id": "51d86d79-43d9-41a9-a6ec-a106c839f2ef", "name": "Network Switch", "volume": 2.0, "unit": "unit", "price": 132900.0},
-                {"id": "4157ff5c-8e94-4e15-9431-974da24ef6da", "name": "Laptop/Desktop", "volume": 9.0, "unit": "unit", "price": 6671000.0},
-                {"id": "11616bc0-3e98-4618-a9f0-aaefaec93fe4", "name": "Tablet", "volume": 6.0, "unit": "unit", "price": 4249150.0},
+                {"id": "4157ff5c-8e94-4e15-9431-974da24ef6da", "name": "Laptop/Desktop", "volume": 6.0, "unit": "unit", "price": 6671000.0},
+                {"id": "11616bc0-3e98-4618-a9f0-aaefaec93fe4", "name": "Tablet", "volume": 4.0, "unit": "unit", "price": 4249150.0},
                 {"id": "303585da-d189-4973-a946-f8847035de87", "name": "Wireless Access Point", "volume": 3.0, "unit": "unit", "price": 175000.0},
                 {"id": "240d5d78-811b-4717-9034-4ea76e27e32d", "name": "Biaya Pengembangan Sistem", "volume": 1.0, "unit": "paket", "price": 28000000.0},
                 {"id": "af543c24-d7ad-423b-8bed-cac90c8b8270", "name": "Biaya Setup & Instalasi", "volume": 1.0, "unit": "paket", "price": 2000000.0},
                 {"id": "5fb9ae44-e5bc-47d9-869f-d90d12a69e41", "name": "Biaya Onboarding & Training", "volume": 1.0, "unit": "paket", "price": 1500000.0},
-                {"id": "b5f2f700-b75b-4db9-81f1-802fe06f6051", "name": "Biaya Domain & Konfigurasi", "volume": 1.0, "unit": "paket", "price": 2319900.0}
+                {"id": "b5f2f700-b75b-4db9-81f1-802fe06f6051", "name": "Biaya Domain & Konfigurasi", "volume": 1.0, "unit": "paket", "price": 2319900.0},
+                {"id": "c1a2b3c4-d5e6-4f7g-8h9i-0j1k2l3m4n5o", "name": "Kepemilikan Sistem (HKI)", "volume": 1.0, "unit": "paket", "price": 700000.0},
+                {"id": "d6e7f8g9-h0i1-4j2k-3l4m-5n6o7p8q9r0s", "name": "Perlindungan Data Pribadi", "volume": 1.0, "unit": "paket", "price": 6000000.0},
+                {"id": "e8f9g0h1-i2j3-4k4l-5m6n-7o8p9q0r1s2t", "name": "Keamanan Data Elektronik", "volume": 1.0, "unit": "paket", "price": 9000000.0},
+                {"id": "f0g1h2i3-j4k5-4l6m-7n8o-9p0q1r2s3t4u", "name": "Sertifikasi Keamanan Informasi (ISO 27001)", "volume": 1.0, "unit": "paket", "price": 20000000.0}
             ]
 
             st.session_state.opex_cash_in = [
-                {"id": "cf693797-5cd7-4985-9245-a3f96e562162", "name": "Penghematan biaya tenaga kerja administrasi", "volume": 1.0, "unit": "paket", "price": 21600000.0},
-                {"id": "631868b8-1aad-46dd-93ed-b7522534f514", "name": "Pengurangan biaya kesalahan & rework", "volume": 1.0, "unit": "paket", "price": 16800000.0},
-                {"id": "471147a2-d322-40c7-a45d-293b806b6fde", "name": "Peningkatan produktivitas proses bisnis", "volume": 1.0, "unit": "paket", "price": 45153948.0},
-                {"id": "eeaa72cc-023e-438a-bdc6-4b8f724f91ee", "name": "Penghematan biaya dokumen fisik", "volume": 1.0, "unit": "paket", "price": 4813680.0}
+                {"id": "cf693797-5cd7-4985-9245-a3f96e562162", "name": "Penghematan biaya tenaga kerja administrasi", "volume": 1.0, "unit": "tahun", "price": 21600000.0},
+                {"id": "631868b8-1aad-46dd-93ed-b7522534f514", "name": "Pengurangan biaya kesalahan & rework", "volume": 1.0, "unit": "tahun", "price": 16800000.0},
+                {"id": "471147a2-d322-40c7-a45d-293b806b6fde", "name": "Peningkatan produktivitas proses bisnis", "volume": 1.0, "unit": "tahun", "price": 44076276.0},
+                {"id": "eeaa72cc-023e-438a-bdc6-4b8f724f91ee", "name": "Penghematan biaya dokumen fisik", "volume": 1.0, "unit": "tahun", "price": 6054600.0}
             ]
 
             st.session_state.opex_cash_out = [
-                {"id": "278e5ae1-b76f-4601-9f19-1cc84079b9d4", "name": "Koneksi Internet Dedicated", "volume": 2.0, "unit": "paket", "price": 375000.0},
-                {"id": "75090947-0595-4e0d-ad68-3df78a71b876", "name": "Listrik (Server & Infrastruktur) PLN tarif R1/900VA", "volume": 1.0, "unit": "paket", "price": 456000.0},
-                {"id": "de1e3463-a3cb-46f1-9b49-f73ea19a9f21", "name": "IP Public Cloudflare", "volume": 1.0, "unit": "paket", "price": 331440.0},
-                {"id": "8ebb7c15-4991-4e94-9db0-59473729d032", "name": "Maintenance & Support Teknis", "volume": 1.0, "unit": "paket", "price": 1500000.0}
+                {"id": "278e5ae1-b76f-4601-9f19-1cc84079b9d4", "name": "Koneksi Internet Dedicated", "volume": 1.0, "unit": "tahun", "price": 6750000.0},
+                {"id": "75090947-0595-4e0d-ad68-3df78a71b876", "name": "Listrik (Server & Infrastruktur) PLN tarif R1/900VA", "volume": 1.0, "unit": "tahun", "price": 5472000.0},
+                {"id": "de1e3463-a3cb-46f1-9b49-f73ea19a9f21", "name": "IP Public Cloudflare", "volume": 1.0, "unit": "tahun", "price": 3977280.0},
+                {"id": "8ebb7c15-4991-4e94-9db0-59473729d032", "name": "Maintenance & Support Teknis", "volume": 1.0, "unit": "tahun", "price": 13200000.0}
             ]
 
             st.session_state.default_data_loaded = True
+            st.session_state.project_years = 5
+            st.session_state.discount_rate = 10.7
+            st.session_state.last_save = datetime.now()
 
         # Mark as initialized
         st.session_state.initialized = True
@@ -196,7 +195,7 @@ def load_from_storage():
             st.session_state.opex_cash_in = data.get('opex_cash_in', [])
             st.session_state.opex_cash_out = data.get('opex_cash_out', [])
             st.session_state.project_years = int(data.get('project_years', 5))  # Ensure integer
-            st.session_state.discount_rate = float(data.get('discount_rate', 12.0))
+            st.session_state.discount_rate = float(data.get('discount_rate', 10.7))
             st.session_state.default_data_loaded = data.get('default_data_loaded', False)
 
             if 'last_save' in data:
