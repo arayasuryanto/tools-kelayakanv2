@@ -742,26 +742,44 @@ with st.sidebar:
     # Growth rates for analysis display only
     st.subheader("📈 Yearly Growth Rates")
     st.markdown("**For analysis display only** (doesn't change input data)")
+    st.info("💡 These growth rates use compound interest formula: Amount = Base × (1 + rate)^year")
 
-    st.session_state.opex_in_growth = st.number_input(
-        "Cash In / Revenue Growth (%/year)",
-        min_value=-100.0,
-        max_value=100.0,
-        value=float(st.session_state.opex_in_growth),
-        step=0.5,
-        key="opex_in_growth_input",
-        help="Growth rate applied in Cash Flow Analysis tab only"
-    )
+    col1, col2 = st.columns(2)
 
-    st.session_state.opex_out_growth = st.number_input(
-        "Cash Out / Expense Growth (%/year)",
-        min_value=-100.0,
-        max_value=100.0,
-        value=float(st.session_state.opex_out_growth),
-        step=0.5,
-        key="opex_out_growth_input",
-        help="Growth rate applied in Cash Flow Analysis tab only"
-    )
+    with col1:
+        st.session_state.opex_in_growth = st.number_input(
+            "💰 Cash In / Revenue Growth (%/year)",
+            min_value=-100.0,
+            max_value=100.0,
+            value=float(st.session_state.opex_in_growth),
+            step=0.5,
+            key="opex_in_growth_input",
+            help="Annual growth rate applied in Cash Flow Analysis tab (compound growth)"
+        )
+
+    with col2:
+        st.session_state.opex_out_growth = st.number_input(
+            "💸 Cash Out / Expense Growth (%/year)",
+            min_value=-100.0,
+            max_value=100.0,
+            value=float(st.session_state.opex_out_growth),
+            step=0.5,
+            key="opex_out_growth_input",
+            help="Annual growth rate applied in Cash Flow Analysis tab (compound growth)"
+        )
+
+    # Show example calculation
+    with st.expander("📊 See Growth Calculation Example"):
+        base_revenue = calculate_yearly_opex_cash_in()
+        if base_revenue > 0:
+            years_demo = 3
+            growth_demo = st.session_state.opex_in_growth / 100.0
+            st.write("**Revenue Growth Example:**")
+            for year in range(years_demo + 1):
+                revenue = base_revenue * ((1 + growth_demo) ** year)
+                st.write(f"Year {year}: Rp {revenue:,.0f}")
+        else:
+            st.write("Add revenue items to see growth calculation example")
 
     st.markdown("---")
 
@@ -1358,8 +1376,11 @@ with tab5:
     st.markdown('<div class="section-header">Sensitivity Analysis (Tornado Diagram)</div>', unsafe_allow_html=True)
 
     st.info("""
-    Sensitivity analysis shows how changes in key variables affect the NPV.
-    Adjust the variation percentage to see different scenarios.
+    🎯 **Sensitivity Analysis** shows how changes in key variables affect your project's NPV.
+
+    **What we test:** How NPV changes when each variable changes by the same percentage (±X%).
+
+    **Why it matters:** Helps identify which variables deserve the most attention and risk management.
     """)
 
     # Sensitivity parameters
@@ -1387,7 +1408,7 @@ with tab5:
 
     # Decrease revenue
     for item in st.session_state.opex_cash_in:
-        item['price'] = item['price'] / (1 + variation_decimal) * (1 - variation_decimal)
+        item['price'] = item['price'] * (1 - variation_decimal)
     cashflows_low = calculate_net_cashflow()
     discounted_low = calculate_discounted_cashflow(cashflows_low, base_discount_factors)
     npv_low = calculate_npv(discounted_low)
@@ -1414,7 +1435,7 @@ with tab5:
 
     # Decrease costs (increases NPV)
     for item in st.session_state.opex_cash_out:
-        item['price'] = item['price'] / (1 + variation_decimal) * (1 - variation_decimal)
+        item['price'] = item['price'] * (1 - variation_decimal)
     cashflows_low = calculate_net_cashflow()
     discounted_low = calculate_discounted_cashflow(cashflows_low, base_discount_factors)
     npv_cost_low = calculate_npv(discounted_low)
@@ -1441,7 +1462,7 @@ with tab5:
 
     # Decrease CAPEX
     for item in st.session_state.capex_items:
-        item['price'] = item['price'] / (1 + variation_decimal) * (1 - variation_decimal)
+        item['price'] = item['price'] * (1 - variation_decimal)
     cashflows_low = calculate_net_cashflow()
     discounted_low = calculate_discounted_cashflow(cashflows_low, base_discount_factors)
     npv_capex_low = calculate_npv(discounted_low)
@@ -1491,35 +1512,40 @@ with tab5:
     low_values = [r['NPV_Low'] - base_npv for r in sensitivity_results]
     high_values = [r['NPV_High'] - base_npv for r in sensitivity_results]
 
-    # Add bars for negative impact
+    # Add bars for negative impact (adverse scenario)
     fig_tornado.add_trace(go.Bar(
-        name=f'-{variation}%',
+        name=f'Worst Case (-{variation}%)',
         y=variables,
         x=low_values,
         orientation='h',
-        marker=dict(color='lightcoral'),
-        hovertemplate='<b>%{y}</b><br>NPV Change: Rp %{x:,.0f}<extra></extra>'
+        marker=dict(color='#FF6B6B'),
+        hovertemplate='<b>%{y}</b><br>NPV Change: Rp %{x:,.0f}<br>Scenario: Worst Case<extra></extra>'
     ))
 
-    # Add bars for positive impact
+    # Add bars for positive impact (best scenario)
     fig_tornado.add_trace(go.Bar(
-        name=f'+{variation}%',
+        name=f'Best Case (+{variation}%)',
         y=variables,
         x=high_values,
         orientation='h',
-        marker=dict(color='lightgreen'),
-        hovertemplate='<b>%{y}</b><br>NPV Change: Rp %{x:,.0f}<extra></extra>'
+        marker=dict(color='#4ECDC4'),
+        hovertemplate='<b>%{y}</b><br>NPV Change: Rp %{x:,.0f}<br>Scenario: Best Case<extra></extra>'
     ))
 
-    fig_tornado.add_vline(x=0, line_dash="dash", line_color="black", line_width=2)
+    # Add baseline
+    fig_tornado.add_vline(x=0, line_dash="dash", line_color="black", line_width=2,
+                          annotation_text="Base Case NPV")
 
+    # Improve layout
     fig_tornado.update_layout(
-        title=f'Tornado Diagram - Sensitivity Analysis (±{variation}%)',
-        xaxis_title='Change in NPV (Rp)',
-        yaxis_title='Variable',
+        title=f'<b>Tornado Diagram - Sensitivity Analysis</b><br><sub>Impact of ±{variation}% changes on NPV</sub>',
+        xaxis_title=f'NPV Change from Base Case (Rp {base_npv:,.0f})',
+        yaxis_title='Variables (Ranked by Impact)',
         barmode='overlay',
-        height=400,
-        showlegend=True
+        height=500,
+        showlegend=True,
+        legend=dict(x=0.7, y=0.1),
+        template='plotly_white'
     )
 
     st.plotly_chart(fig_tornado, use_container_width=True)
@@ -1538,19 +1564,60 @@ with tab5:
 
     st.dataframe(sensitivity_table, use_container_width=True, hide_index=True)
 
-    st.info(f"""
-    **Interpretation:**
-    - Variables at the top of the tornado diagram have the greatest impact on NPV
-    - **Most Sensitive Variable:** {sensitivity_results[0]['Variable']}
-    - **Least Sensitive Variable:** {sensitivity_results[-1]['Variable']}
-    - Focus management attention on the most sensitive variables to maximize project success
-    """)
+    # Enhanced interpretation
+    most_sensitive = sensitivity_results[0]
+    least_sensitive = sensitivity_results[-1]
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown(f"""
+        ### 🎯 Key Insights
+        - **Most Critical Variable:** `{most_sensitive['Variable']}`
+        - **Potential NPV Impact:** Rp {most_sensitive['Range']:,.0f}
+        - **Risk Level:** {'🔴 High' if most_sensitive['Range'] > abs(base_npv * 0.5) else '🟡 Medium' if most_sensitive['Range'] > abs(base_npv * 0.2) else '🟢 Low'}
+        """)
+
+    with col2:
+        st.markdown(f"""
+        ### 📊 Recommendations
+        - **Monitor Closely:** {most_sensitive['Variable']}
+        - **Priority:** High attention needed
+        - **Action:** Implement risk mitigation strategies
+        """)
+
+    # Detailed explanation
+    with st.expander("📖 How to Interpret This Analysis"):
+        st.markdown(f"""
+        ### Understanding the Tornado Diagram
+
+        **What it shows:**
+        - How much NPV changes when each variable changes by ±{variation}%
+        - Variables are ranked by impact (most sensitive at top)
+        - The wider the bar, the more sensitive the NPV is to that variable
+
+        **Base Case NPV:** Rp {base_npv:,.0f}
+
+        **Scenarios Explained:**
+        - **Worst Case (-{variation}%):** When variable decreases (for revenue) or increases (for costs)
+        - **Best Case (+{variation}%):** When variable increases (for revenue) or decreases (for costs)
+
+        **Management Implications:**
+        1. **{most_sensitive['Variable']}** deserves the most attention and monitoring
+        2. Small changes in {most_sensitive['Variable']} can significantly impact project viability
+        3. Consider conducting more detailed analysis or implementing risk mitigation for top 3 variables
+
+        **Next Steps:**
+        - Gather more accurate data for sensitive variables
+        - Develop contingency plans for adverse scenarios
+        - Consider sensitivity analysis results in your go/no-go decision
+        """)
 
 # Footer
 st.markdown("---")
 st.markdown("""
     <div style='text-align: center; color: gray; padding: 1rem;'>
-        <p>Feasibility Analysis Tool v1.1 | Built with Streamlit</p>
-        <p>For investment analysis and project evaluation</p>
+        <p>Feasibility Analysis Tool v2.0 | Built with Streamlit</p>
+        <p>For investment analysis and project evaluation | Enhanced with improved sensitivity analysis</p>
     </div>
     """, unsafe_allow_html=True)
