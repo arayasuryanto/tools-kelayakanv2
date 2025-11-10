@@ -251,11 +251,19 @@ def calculate_net_cashflow():
 
         cashflows = [-capex]  # Year 0
 
-        # Calculate each year with compound growth
+        # Calculate each year with compound growth (Excel-style)
+        # Growth starts from year 2: exponent = 0 for year 1, exponent = 1 for year 2, etc.
         for year in range(1, years + 1):
-            # Apply growth: Amount = Base × (1 + rate)^year
-            cash_in_year = base_cash_in * ((1 + growth_in) ** year)
-            cash_out_year = base_cash_out * ((1 + growth_out) ** year)
+            if year == 1:
+                # Year 1: No growth (base amount)
+                cash_in_year = base_cash_in
+                cash_out_year = base_cash_out
+            else:
+                # Year 2+: Apply growth with exponent = year - 1
+                # Excel formula: =Base*(1+Rate)^(year-1)
+                cash_in_year = base_cash_in * ((1 + growth_in) ** (year - 1))
+                cash_out_year = base_cash_out * ((1 + growth_out) ** (year - 1))
+
             yearly_net = cash_in_year - cash_out_year
             cashflows.append(yearly_net)
 
@@ -742,7 +750,7 @@ with st.sidebar:
     # Growth rates for analysis display only
     st.subheader("📈 Yearly Growth Rates")
     st.markdown("**For analysis display only** (doesn't change input data)")
-    st.info("💡 These growth rates use compound interest formula: Amount = Base × (1 + rate)^year")
+    st.info("💡 These growth rates use compound interest formula: Amount = Base × (1 + rate)^(year-1)")
 
     col1, col2 = st.columns(2)
 
@@ -754,7 +762,7 @@ with st.sidebar:
             value=float(st.session_state.opex_in_growth),
             step=0.5,
             key="opex_in_growth_input",
-            help="Annual growth rate applied in Cash Flow Analysis tab (compound growth)"
+            help="Annual growth rate starting from Year 2 (compound growth: Year 1 = base, Year 2+ = growth applied)"
         )
 
     with col2:
@@ -765,19 +773,33 @@ with st.sidebar:
             value=float(st.session_state.opex_out_growth),
             step=0.5,
             key="opex_out_growth_input",
-            help="Annual growth rate applied in Cash Flow Analysis tab (compound growth)"
+            help="Annual growth rate starting from Year 2 (compound growth: Year 1 = base, Year 2+ = growth applied)"
         )
 
     # Show example calculation
     with st.expander("📊 See Growth Calculation Example"):
         base_revenue = calculate_yearly_opex_cash_in()
         if base_revenue > 0:
-            years_demo = 3
+            years_demo = 5
             growth_demo = st.session_state.opex_in_growth / 100.0
-            st.write("**Revenue Growth Example:**")
-            for year in range(years_demo + 1):
-                revenue = base_revenue * ((1 + growth_demo) ** year)
-                st.write(f"Year {year}: Rp {revenue:,.0f}")
+            st.write("**Revenue Growth Example (Excel-Style):**")
+            st.write(f"Base Revenue: Rp {base_revenue:,.0f}")
+            st.write(f"Growth Rate: {st.session_state.opex_in_growth}%/year")
+            st.write("")
+
+            for year in range(1, years_demo + 1):
+                if year == 1:
+                    revenue = base_revenue  # No growth in year 1
+                    formula = "Base × (1+rate)^0"
+                    explanation = "(No growth yet)"
+                else:
+                    revenue = base_revenue * ((1 + growth_demo) ** (year - 1))
+                    formula = f"Base × (1+{st.session_state.opex_in_growth}%)^{year-1}"
+                    explanation = f"(Growth applied)"
+
+                st.write(f"**Year {year}:** Rp {revenue:,.0f} - {formula} {explanation}")
+
+            st.info("💡 **Growth starts from Year 2** - Year 1 uses base amount (no growth)")
         else:
             st.write("Add revenue items to see growth calculation example")
 
