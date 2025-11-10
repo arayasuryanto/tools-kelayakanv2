@@ -1,23 +1,30 @@
-# Deployment Guide - Feasibilizer App
+# Deployment Guide - Feasibilizer App v2
 
 ## Quick Deploy Options
 
 ### Option 1: Streamlit Cloud (Recommended - FREE)
 
-1. **Push to GitHub** ✅ DONE
-   ```
-   Repository: https://github.com/arayasuryanto/feasibilitizer-app
+1. **Create GitHub Repository for v2**
+   - Go to [GitHub](https://github.com) and create a new repository: `arayasuryanto/feasibilitizer-app-v2`
+   - Make it public
+   - Don't initialize with README (we already have files)
+
+2. **Push to GitHub**
+   ```bash
+   git remote add origin https://github.com/arayasuryanto/feasibilitizer-app-v2.git
+   git branch -M main
+   git push -u origin main
    ```
 
-2. **Deploy to Streamlit Cloud**
+3. **Deploy to Streamlit Cloud**
    - Go to [share.streamlit.io](https://share.streamlit.io)
    - Click "New app"
-   - Select your repository: `arayasuryanto/feasibilitizer-app`
+   - Select your repository: `arayasuryanto/feasibilitizer-app-v2`
    - Main file path: `app.py`
    - Click "Deploy"
 
-3. **Access Your App**
-   - URL will be: `https://arayasuryanto-feasibilitizer-app-app-xxxxx.streamlit.app`
+4. **Access Your App**
+   - URL will be: `https://arayasuryanto-feasibilitizer-app-v2-app-xxxxx.streamlit.app`
    - Share this URL with users!
 
 ---
@@ -26,8 +33,8 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/arayasuryanto/feasibilitizer-app.git
-cd feasibilitizer-app
+git clone https://github.com/arayasuryanto/feasibilitizer-app-v2.git
+cd feasibilitizer-app-v2
 
 # Install dependencies
 pip install -r requirements.txt
@@ -44,7 +51,7 @@ Access at: `http://localhost:8501`
 
 1. **Create Heroku App**
    ```bash
-   heroku create feasibilitizer-app
+   heroku create feasibilitizer-app-v2
    ```
 
 2. **Add Buildpack**
@@ -100,8 +107,8 @@ Access at: `http://localhost:8501`
 
 2. **Build and Run**
    ```bash
-   docker build -t feasibilitizer-app .
-   docker run -p 8501:8501 feasibilitizer-app
+   docker build -t feasibilitizer-app-v2 .
+   docker run -p 8501:8501 feasibilitizer-app-v2
    ```
 
 ---
@@ -122,8 +129,8 @@ Access at: `http://localhost:8501`
    sudo apt install python3-pip -y
 
    # Clone repository
-   git clone https://github.com/arayasuryanto/feasibilitizer-app.git
-   cd feasibilitizer-app
+   git clone https://github.com/arayasuryanto/feasibilitizer-app-v2.git
+   cd feasibilitizer-app-v2
 
    # Install requirements
    pip3 install -r requirements.txt
@@ -204,7 +211,7 @@ git push origin main
 ### Self-Hosted
 ```bash
 # On server
-cd feasibilitizer-app
+cd feasibilitizer-app-v2
 git pull origin main
 # Restart streamlit
 ```
@@ -276,7 +283,7 @@ git pull origin main
 
 ## Support & Resources
 
-- **GitHub Issues:** https://github.com/arayasuryanto/feasibilitizer-app/issues
+- **GitHub Issues:** https://github.com/arayasuryanto/feasibilitizer-app-v2/issues
 - **Streamlit Docs:** https://docs.streamlit.io
 - **Community Forum:** https://discuss.streamlit.io
 
